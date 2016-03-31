@@ -1,0 +1,40 @@
+package main
+
+import (
+    "net/http"
+    "github.com/zenazn/goji"
+    "github.com/zenazn/goji/web"
+)
+
+//Este pequeño programa sirve de multiplexor para tus subdominios.
+//puede ser útil digamos con una ñunica IP rediriges a diferentes puertos - servidores
+//usa la libreria goji debes instalarla previamente go get nombre_github
+// para las pruebas en tu localhost usa  curl -H "Host: google.platzi.com" http://localhost:8000
+// FIX: Arreglados algunos bug y ahora con redirección a google.
+
+func main() {
+    mux1 := web.New()
+    mux1.Get("/", func(w http.ResponseWriter, r *http.Request) {
+        w.Write([]byte("página de platzi /mis recursos  \n"))
+    })
+    http.Handle("www.platzi.com/", mux1)
+
+    mux2 := web.New()
+    mux2.Get("/", func(w http.ResponseWriter, r *http.Request) {
+        w.Write([]byte("<a href='http://www.google.com'>Moved Permanently</a>."))
+    })
+    http.Handle("google.platzi.com/", mux2)
+
+    mux3 := web.New()
+    mux3.Get("/", func(w http.ResponseWriter, r *http.Request) {
+        w.Write([]byte("<http> <head> <h1> Hola Página de Blog de Platzi </h1> </http>\n"))
+    })
+    http.Handle("blog.platzi.com/", mux2)    
+    
+    
+    goji.Get("/", func(w http.ResponseWriter, r *http.Request) {
+        w.Write([]byte("ruta de escape\n"))
+    })
+
+    goji.Serve()
+}
